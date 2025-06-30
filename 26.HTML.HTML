@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Fish Wallpaper</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #1e3c72, #2a5298);
+    }
+    .fish {
+      position: absolute;
+      width: 50px;
+      height: 30px;
+      background: orange;
+      border-radius: 50%;
+      animation: swim 10s linear infinite;
+    }
+    .fish::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: -10px;
+      width: 20px;
+      height: 10px;
+      background: orange;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+    @keyframes swim {
+      0% {
+        transform: translateX(-100px) translateY(50px) scale(1);
+      }
+      50% {
+        transform: translateX(100vw) translateY(80vh) scale(1.2);
+      }
+      100% {
+        transform: translateX(-100px) translateY(50px) scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="fish"></div>
+  <div class="fish" style="animation-delay: 2s; top: 200px;"></div>
+  <div class="fish" style="animation-delay: 4s; top: 400px;"></div>
+</body>
+</html>
