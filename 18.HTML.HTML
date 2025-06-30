@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Spelling Bee</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        input { padding: 10px; margin: 10px; }
+        button { padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Spelling Bee Game</h1>
+    <p id="hint">Hint: It's a type of fruit</p>
+    <audio id="wordAudio" src="apple.mp3"></audio>
+    <button onclick="playWord()">Hear the Word</button>
+    <br>
+    <input type="text" id="answer" placeholder="Type your spelling here">
+    <button onclick="checkAnswer()">Submit</button>
+    <p id="result"></p>
+    <script>
+        const word = "apple";
+        function playWord() {
+            document.getElementById("wordAudio").play();
+        }
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer").value.toLowerCase();
+            const result = document.getElementById("result");
+            if (userAnswer === word) {
+                result.textContent = "Correct! 🎉";
+                result.style.color = "green";
+            } else {
+                result.textContent = "Try Again! ❌";
+                result.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
