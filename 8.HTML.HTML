@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ROCK PAPER SCISSORS</title>
+    </head>
+    <body>
+        <H1> ROCK PAPER SCISSORS</H1>
+        <button onclick="Play('rock')">ROCK</button>
+        <button onclick="Play('PAPER')">paper</button>
+        <button onclick="Play('Scissor')">SCISSORS</button>
+        <p id="result"></p>
+        <script>
+            function Play(choices){
+                const computer=choices[Math.floor(Math.random()*3)];
+                if(choices===computer){
+                    document.getElementById('result').innerText='tie!';
+                }else if((choices==='rock'&& computerd==='scissors')||(choices==='scissor'&&computer==='paper')||(choices==='paper'&& computer==='rock')){
+                    document.getElementById('result').innerText='you win!';
+                }else {
+                     document.getElementById('result').innerText='computer win!';
+                }
+            }
+        </script>
+    </body>
+</html>
