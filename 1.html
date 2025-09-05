@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AP and GP Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h2 {
+      color: #333;
+    }
+    .container {
+      max-width: 400px;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #output {
+      margin-top: 20px;
+      background: #e6f0ff;
+      padding: 15px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Arithmetic & Geometric Progression Calculator</h2>
+    
+    <label for="progressionType">Choose Type:</label>
+    <select id="progressionType">
+      <option value="AP">Arithmetic Progression</option>
+      <option value="GP">Geometric Progression</option>
+    </select>
+
+    <label for="a">First Term (a):</label>
+    <input type="number" id="a" placeholder="Enter first term">
+
+    <label for="dOrR">Common Difference / Ratio:</label>
+    <input type="number" id="dOrR" placeholder="Enter difference or ratio">
+
+    <label for="n">Number of Terms (n):</label>
+    <input type="number" id="n" placeholder="Enter number of terms">
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function calculate() {
+      const type = document.getElementById("progressionType").value;
+      const a = parseFloat(document.getElementById("a").value);
+      const dOrR = parseFloat(document.getElementById("dOrR").value);
+      const n = parseInt(document.getElementById("n").value);
+      let nthTerm, sum;
+
+      if (isNaN(a) || isNaN(dOrR) || isNaN(n) || n <= 0) {
+        document.getElementById("output").innerHTML = "<b>Please enter valid values.</b>";
+        return;
+      }
+
+      if (type === "AP") {
+        nthTerm = a + (n - 1) * dOrR;
+        sum = (n / 2) * (2 * a + (n - 1) * dOrR);
+      } else if (type === "GP") {
+        nthTerm = a * Math.pow(dOrR, n - 1);
+        if (dOrR === 1) {
+          sum = a * n;
+        } else {
+          sum = a * (1 - Math.pow(dOrR, n)) / (1 - dOrR);
+        }
+      }
+
+      document.getElementById("output").innerHTML = `
+        <b>${type} Results:</b><br>
+        n-th Term: ${nthTerm.toFixed(4)}<br>
+        Sum of n Terms: ${sum.toFixed(4)}
+      `;
+    }
+  </script>
+</body>
+</html>
