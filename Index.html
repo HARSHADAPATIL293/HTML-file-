@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Image Classification</title>
+  <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+    }
+
+    img {
+      max-width: 320px;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: 3px solid white;
+    }
+
+    input {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Image Classification</h1>
+
+<input type="file" id="imageUpload" accept="image/*">
+<br>
+<img id="preview" />
+<h2 id="result">Model Loading...</h2>
+
+<script>
+
+const modelURL = "https://teachablemachine.withgoogle.com/models/ml8g080c2/model.json";
+
+let classifier;
+let imageUpload = document.getElementById("imageUpload");
+let preview = document.getElementById("preview");
+let result = document.getElementById("result");
+
+// Load model
+async function init() {
+  classifier = await ml5.imageClassifier(modelURL);
+  result.innerText = "Model Loaded! Upload an image.";
+}
+
+init();
+
+// When user uploads image
+imageUpload.addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    preview.src = e.target.result;
+
+    preview.onload = function() {
+      classifyImage();
+    }
+  }
+
+  reader.readAsDataURL(file);
+});
+
+// Classify image
+function classifyImage() {
+  classifier.classify(preview, function(error, results) {
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const label = results[0].label;
+    const confidence = (results[0].confidence * 100).toFixed(2);
+
+    result.innerText = `Prediction: ${label} (${confidence}%)`;
+  });
+}
+
+</script>
+
+</body>
+</html>
