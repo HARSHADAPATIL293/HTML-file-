@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Posture Detection with Images</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
+  <style>
+    body {
+      background-color: #222;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    canvas {
+      border: 2px solid white;
+      display: block;
+      margin: 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Real-Time Posture Detection</h1>
+
+  <script>
+    let classifier;
+    let video;
+    let label = "";
+    const modelURL = "https://teachablemachine.withgoogle.com/models/mRAFoLtRe/";
+
+    // Images for posture feedback
+    let goodPostureImg;
+    let badPostureImg;
+
+    function preload() {
+      // Load ML model
+      classifier = ml5.imageClassifier(modelURL + "model.json");
+      // Load images for feedback (replace URLs with your own if needed)
+      goodPostureImg = loadImage("https://i.imgur.com/qQH1Xcl.png"); // Good posture image
+      badPostureImg = loadImage("https://i.imgur.com/NxQOgkC.png");  // Bad posture image
+    }
+
+    function setup() {
+      createCanvas(320, 260);
+      video = createCapture(VIDEO);
+      video.size(320, 240);
+      video.hide();
+
+      console.log("Starting classification...");
+      classifyVideo();
+    }
+
+    function draw() {
+      background(0);
+
+      // Draw webcam video
+      image(video, 0, 0, width, height);
+
+      // Draw posture image overlay based on label
+      if (label === "Good Posture") {
+        image(goodPostureImg, 0, 0, width, height);
+      } else if (label === "Bad Posture") {
+        image(badPostureImg, 0, 0, width, height);
+      }
+
+      // Draw label text
+      fill(255);
+      textSize(18);
+      textAlign(CENTER, BOTTOM);
+      text(label, width / 2, height - 10);
+    }
+
+    function classifyVideo() {
+      classifier.classify(video, (error, results) => {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        label = results[0].label;
+        classifyVideo(); // Repeat classification
+      });
+    }
+  </script>
+</body>
+</html>
