@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Image Classification</title>
+
+<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+
+<style>
+body{
+    text-align:center;
+    background:#111;
+    color:white;
+    font-family:Arial;
+}
+
+img{
+    width:300px;
+    margin-top:20px;
+    border:3px solid white;
+}
+
+#result{
+    margin-top:20px;
+    font-size:22px;
+    color:yellow;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Smart Waste Classification</h1>
+
+<input type="file" id="imageUpload" accept="image/*">
+
+<br><br>
+
+<img id="img">
+
+<div id="result">Loading model...</div>
+
+<script>
+
+let classifier;
+let img = document.getElementById("img");
+let result = document.getElementById("result");
+let upload = document.getElementById("imageUpload");
+
+// IMPORTANT: correct model path
+const modelURL = "https://teachablemachine.withgoogle.com/models/6vBu1Yu2V/";
+
+// Load model properly (IMPORTANT FIX)
+ml5.imageClassifier(modelURL + "model.json")
+.then(model => {
+    classifier = model;
+    result.innerHTML = "Model Loaded ✔️";
+})
+.catch(err => {
+    console.log(err);
+    result.innerHTML = "Model failed to load ❌";
+});
+
+// Upload image
+upload.addEventListener("change", function(e){
+
+    let file = e.target.files[0];
+
+    if(!file) return;
+
+    let reader = new FileReader();
+
+    reader.onload = function(event){
+
+        img.src = event.target.result;
+
+        img.onload = function(){
+
+            if(!classifier){
+                result.innerHTML = "Model still loading...";
+                return;
+            }
+
+            classifier.classify(img)
+            .then(results => {
+
+                console.log(results);
+
+                result.innerHTML =
+                    "Prediction: " +
+                    results[0].label +
+                    " (" +
+                    (results[0].confidence * 100).toFixed(2) +
+                    "%)";
+
+            })
+            .catch(err => {
+                console.log(err);
+                result.innerHTML = "Prediction error ❌";
+            });
+
+        };
+    };
+
+    reader.readAsDataURL(file);
+});
+
+</script>
+
+</body>
+</html>
