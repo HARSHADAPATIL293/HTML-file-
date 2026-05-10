@@ -1,84 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ML5 Webcam Image Classification</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- p5.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <title>Smart Waste Management AI</title>
 
-  <!-- ml5.js -->
-  <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+  <!-- ML5 LIBRARY -->
+  <script src="https://unpkg.com/ml5@0.6.0/dist/ml5.min.js"></script>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
+      color:white;
+      padding:20px;
+    }
+
+    .card{
+      width:450px;
+      background:rgba(255,255,255,0.08);
+      border-radius:20px;
+      padding:25px;
+      text-align:center;
+      backdrop-filter:blur(12px);
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    h1{
+      color:#4ade80;
+      margin-bottom:10px;
+    }
+
+    p{
+      color:#cbd5e1;
+      margin-bottom:20px;
+      font-size:14px;
+    }
+
+    .upload-btn{
+      display:inline-block;
+      padding:12px 22px;
+      background:#22c55e;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+      transition:0.3s;
+      margin-bottom:20px;
+    }
+
+    .upload-btn:hover{
+      background:#16a34a;
+      transform:scale(1.05);
+    }
+
+    input{
+      display:none;
+    }
+
+    .image-box{
+      width:100%;
+      height:280px;
+      border:3px dashed #4ade80;
+      border-radius:15px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:rgba(255,255,255,0.05);
+      overflow:hidden;
+      margin-bottom:20px;
+    }
+
+    .image-box img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:none;
+    }
+
+    .placeholder{
+      color:#94a3b8;
+    }
+
+    .result{
+      margin-top:15px;
+      padding:15px;
+      background:rgba(255,255,255,0.08);
+      border-radius:12px;
+    }
+
+    .label{
+      font-size:26px;
+      font-weight:bold;
+      color:#4ade80;
+      margin-top:10px;
+    }
+
+    .confidence{
+      margin-top:8px;
+      color:#cbd5e1;
+    }
+
+    .status{
+      margin-top:10px;
+      color:#facc15;
+      font-size:14px;
+    }
+
+  </style>
 </head>
 
 <body>
-<script>
 
-// Classifier Variable
-let classifier;
+  <div class="card">
 
-// 🔴 IMPORTANT: make sure this URL ends with a slash /
-let imageModelURL = 'https://teachablemachine.withgoogle.com/models/BEhJy8OSN/';
+    <h1>♻ Smart Waste AI</h1>
 
-// Video
-let video;
-let flippedVideo;
+    <p>
+      Upload waste image and AI will detect:
+      Wet Waste | Dry Waste | Plastic Waste
+    </p>
 
-// To store the classification
-let label = "";
+    <label for="imageUpload" class="upload-btn">
+      Upload Image
+    </label>
 
-// Load the model first
-function preload() {
-  classifier = ml5.imageClassifier(imageModelURL + 'model.json');
-}
+    <input type="file" id="imageUpload" accept="image/*">
 
-function setup() {
-  createCanvas(320, 260);
+    <!-- IMAGE BOX -->
+    <div class="image-box">
 
-  // Create the video
-  video = createCapture(VIDEO);
-  video.size(320, 240);
-  video.hide();
+      <span class="placeholder" id="placeholder">
+        No Image Selected
+      </span>
 
-  // Start classifying
-  classifyVideo();
-}
+      <img id="previewImage">
 
-function draw() {
-  background(0);
+    </div>
 
-  // Flip video horizontally (mirror effect)
-  flippedVideo = ml5.flipImage(video);
-  image(flippedVideo, 0, 0);
+    <!-- RESULT -->
+    <div class="result">
 
-  // Draw the label
-  fill(255);
-  textSize(16);
-  textAlign(CENTER);
-  text(label, width / 2, height - 4);
-}
+      <div class="status" id="status">
+        Loading AI Model...
+      </div>
 
-// Get a prediction for the current video frame
-function classifyVideo() {
-  flippedVideo = ml5.flipImage(video);
-  classifier.classify(flippedVideo, gotResult);
-}
+      <div class="label" id="result">
+        Waiting...
+      </div>
 
-// When we get a result
-function gotResult(error, results) {
-  if (error) {
-    console.error(error);
-    return;
-  }
+      <div class="confidence" id="confidence">
+        Confidence: 0%
+      </div>
 
-  // The results are ordered by confidence
-  label = results[0].label;
+    </div>
 
-  // Classify again
-  classifyVideo();
-}
+  </div>
 
-</script>
+  <script>
+
+    // =========================
+    // MODEL URL
+    // =========================
+
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/P8gLWUxXP/";
+
+    let classifier;
+
+    // Load model
+    classifier = ml5.imageClassifier(MODEL_URL + "model.json", modelLoaded);
+
+    function modelLoaded() {
+      document.getElementById("status").innerText = "Model Loaded Successfully ✅";
+    }
+
+    // Elements
+    const imageUpload = document.getElementById("imageUpload");
+    const previewImage = document.getElementById("previewImage");
+    const placeholder = document.getElementById("placeholder");
+
+    // Upload event
+    imageUpload.addEventListener("change", function (event) {
+
+      const file = event.target.files[0];
+
+      if (file) {
+
+        previewImage.src = window.URL.createObjectURL(file);
+        previewImage.style.display = "block";
+        placeholder.style.display = "none";
+
+        previewImage.onload = function () {
+
+          document.getElementById("status").innerText = "Detecting Waste... 🔍";
+
+          classifier.classify(previewImage, gotResult);
+
+        };
+
+      }
+
+    });
+
+    // =========================
+    // GET RESULT
+    // =========================
+
+    function gotResult(error, results) {
+
+      if (error) {
+        console.error(error);
+        document.getElementById("status").innerText = "Error ❌";
+        return;
+      }
+
+      console.log(results);
+
+      let label = results[0].label;
+      let confidence = (results[0].confidence * 100).toFixed(2);
+
+      document.getElementById("result").innerText = label;
+      document.getElementById("confidence").innerText = "Confidence: " + confidence + "%";
+      document.getElementById("status").innerText = "Detection Complete ✅";
+
+    }
+
+  </script>
+
 </body>
+
 </html>
